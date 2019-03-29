@@ -2,17 +2,16 @@ from flask import Flask
 from flask_cors import CORS
 
 import config
+from client.sagemaker_client import SageMakerClient
 from route.common import common_blueprint
 from route.notebook_instance import notebook_instance_blueprint
 
 server = Flask(__name__)
-server.debug = config.DEBUG
+CORS(server)
 
-CORS(
-    server,
-    resource={r"/*": {"origins": "*"}},
-    headers=['Content-Type', 'X-Requested-With', 'Authorization'],
-)
+server.debug = config.DEBUG
+server.config['AWS_SESSION'] = config.AWS_SESSION
+client = SageMakerClient(**server.config['AWS_SESSION'])
 
 server.register_blueprint(common_blueprint)
 server.register_blueprint(notebook_instance_blueprint)
